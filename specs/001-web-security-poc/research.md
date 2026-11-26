@@ -1,0 +1,55 @@
+# Pesquisa e decisões técnicas
+
+**Data**: 2026-11-26. Pesquisa documental; nenhum pacote, build, navegador ou modelo foi executado. Decisões de biblioteca são propostas condicionais, não prova de compatibilidade. A especificação e a constituição prevalecem.
+
+## Stack e reprodutibilidade
+
+| Tecnologia | Decisão e justificativa | Evidência e validação pendente |
+|------------|-------------------------|--------------------------------|
+| WXT | Proposto para entrypoints MV3 e build de projeto único; evita infraestrutura manual. Alternativa: extensão MV3 sem framework, menos dependências mas mais configuração. | [Entrypoints WXT](https://wxt.dev/guide/essentials/entrypoints). Verificar versão, manifest gerado, React e CSP em build real. |
+| React | Proposto para a única interface de estados e findings; alternativa DOM nativo, mais simples em tamanho mas menos alinhado à stack solicitada. | [React](https://react.dev/learn). Medir bundle e renderização segura. |
+| TypeScript strict | Proposto para contratos e funções puras; alternativa JavaScript sem tipagem estática. | [strict](https://www.typescriptlang.org/tsconfig/strict.html). Tipos estáticos não validam mensagens recebidas. |
+| Tailwind CSS | Proposto para estilos estáticos do painel; alternativa CSS simples, com menos dependências. | [Tailwind/Vite](https://tailwindcss.com/docs/installation/using-vite). Verificar integração WXT e CSS empacotado sob CSP. |
+| Zod | Proposto para validação runtime nas fronteiras não confiáveis; alternativa validadores manuais. | [Zod](https://zod.dev/). Verificar bundle e compatibilidade com TypeScript. |
+| Vitest | Proposto para regras puras e contratos; alternativa runner nativo. | [Vitest](https://vitest.dev/guide/). Separar unitários de teste real de APIs Chrome. |
+| pnpm | Proposto para gestão de pacote e lockfile, sem monorepo; alternativa npm. | [pnpm](https://pnpm.io/motivation). Fixar versões após teste e registrar lockfile, Node e comandos reprodutíveis. |
+
+Nenhuma versão exata é aprovada sem combinação testada. Builds reproduzíveis exigem fontes OWASP e ferramentas fixadas e comparação de artefatos; não alegar bit a bit antes do experimento. Não usar Next.js, NestJS, backend ou base externa.
+
+## Permissões, respostas e identidade
+
+- **Decisão**: `activeTab` por ação da extensão, `scripting`, `sidePanel`, `webRequest`, `webNavigation`; solicitar `cookies` e eventual host mínimo opcional apenas quando necessário. A [documentação activeTab](https://developer.chrome.com/docs/extensions/develop/concepts/activeTab) descreve concessão temporária para origem principal, inclusive observação de requisições dessa origem, não acesso irrestrito a terceiros. Alternativa `<all_urls>` obrigatória foi rejeitada por privilégio excessivo. Um clique no Side Panel por si só não é presumido como concessão `activeTab`.
+- **Headers**: [webRequest](https://developer.chrome.com/docs/extensions/reference/api/webRequest) fornece `onHeadersReceived` e `responseHeaders`, mediante permissões aplicáveis; o listener não recupera respostas anteriores. Distinguir resposta principal efetivamente observada da ausência de header. `extraHeaders` pode expor dados adicionais e fica desabilitado salvo comprovação de necessidade. Sem nova requisição para teste.
+- **Documento**: [webNavigation](https://developer.chrome.com/docs/extensions/reference/api/webNavigation) expõe identidade de documento e navegação. Associar frame principal, aba, request e `documentId` quando disponíveis; verificar em Chrome real a correspondência, redirects e cache. Não inferir correspondência em caso de dúvida.
+- **Cookies**: [cookies API](https://developer.chrome.com/docs/extensions/reference/api/cookies) retorna objetos com valores e depende de permissão de host; filtrar por URL/loja e tratar partição. A API não comprova que um cookie foi transmitido numa requisição. Uso de `activeTab` com API de cookies, cookies particionados e completude de lojas precisam de teste; falhas levam a `NOT_EVALUATED`. Não utilizar `document.cookie`: ele não permite observar todos os atributos e cookies HttpOnly. Nunca transmitir objeto bruto.
+- **Ciclo de vida**: o [service worker pode ser encerrado](https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle), incluindo após 30 s de inatividade; globais desaparecem. Listeners registrados no topo e interrupção segura são preferíveis a persistir histórico ou manter processo vivo. Verificar reinício e eventos perdidos em teste real.
+
+## CSP e política de distribuição
+
+- **Decisão**: pacote MV3 contém todo JavaScript/WASM executável e não usa `eval` ou código remoto. A [política de código remoto](https://developer.chrome.com/docs/extensions/develop/migrate/remote-hosted-code) restringe carregamento de lógica remota. A [CSP do manifesto](https://developer.chrome.com/docs/extensions/reference/manifest/content-security-policy) determina mínimos permitidos para páginas da extensão; `wasm-unsafe-eval`, caso necessário, exige verificação do pacote e justificativa. Pesos de modelo não equivalem automaticamente a JavaScript executável: Chrome os distingue em [Extensions and AI](https://developer.chrome.com/docs/extensions/ai), mas formato, download, licença, CSP e revisão concreta da CWS ainda exigem auditoria. Nunca assumir aprovação da loja.
+- **CSP da aplicação**: aplicar somente as regras limitadas da especificação: Report-Only não impõe; analisar headers e meta válidos, efeito restritivo de múltiplas políticas, `script-src`/`default-src` e precedência de `frame-ancestors`; sintaxe, posição, tempo ou suporte incertos levam a `NOT_EVALUATED`. Sem parser genérico completo.
+
+## Referências de IA consultadas
+
+- O [repositório gemma4-browser-extension](https://github.com/nico-martin/gemma4-browser-extension) descreve Transformers.js/WebGPU e um agente com ferramentas, permissões amplas, histórico vetorial IndexedDB e download automático. Serve de referência para separar componentes; esses comportamentos não são aceitos para esta PoC. O README é declaração do autor, não evidência de conformidade da distribuição nem garantia para outro dispositivo.
+- O [artigo Transformers.js em extensão Chrome](https://huggingface.co/blog/transformersjs-chrome-extension) mostra arquitetura com service worker, painel e content script, além de cache sob origem da extensão. É exemplo, não prova de persistência do worker nem compatibilidade universal MV3/CWS. Nosso plano não adota ferramentas de agente, histórico ou envio automático.
+- A [Prompt API](https://developer.chrome.com/docs/ai/prompt-api) documenta Gemini Nano em extensões, consulta de disponibilidade, download ao criar sessão e dependências de sistema; documentação informa indisponibilidade em Web Workers. Candidato no Side Panel, não no service worker. Ativar criação/download somente com gesto explícito; verificar se inicialização envolve rede e não envia dados da aplicação, inclusive telemetria aplicável. O Chrome administra o modelo e sua atualização; não presumir controle integral de cache ou versão.
+- [IA em extensões](https://developer.chrome.com/docs/extensions/ai) distingue pesos de código remoto e discute modelos locais. WebGPU, WASM, multithreading, fallback, licenças de modelo e assets empacotados devem ser ensaiados no Chrome alvo, modo de distribuição e hardware selecionado. Não presumir que o modelo cabe no pacote, baixa em todos os ambientes ou produz referências confiáveis.
+
+## Recuperação e fallback
+
+- **Decisão**: cinco documentos aprovados com URL, revisão, hash e licença conferida; chunking determinístico por seções, com `sourceId`, versão e `chunkId`. Vetores de chunks e consultas canônicas das dez regras são gerados no build com o mesmo modelo e parâmetros fixados; busca por cosseno e desempate por ID. Uso de consultas pré-computadas limita personalização, mas evita modelo de embeddings em runtime. Pesquisar licenças, dimensão, tamanho e qualidade antes de consolidar modelo ou vetores. Sem banco vetorial nem IndexedDB para a base.
+- **Alternativas**: embeddings de consulta em runtime oferecem maior contexto, com custo e dependências; busca lexical fixa é menor, porém não substitui a recuperação por similaridade de embeddings proposta. Fallback determinístico por regra sempre disponível, sem consulta a modelo nem rede.
+- **Geração**: Prompt API é candidato mais simples para evitar pacote de inferência e usar modelo gerenciado; Transformers.js é alternativa somente após comprovar bundle, WASM/WebGPU, pesos e política. Manter indisponível até prova; não selecionar como solução já validada.
+- **Gates separados**: SPIKE-005 tem limite inicial conjunto de quatro horas e registra resultados independentes para recuperação semântica e inferência local. A recuperação pode avançar se somente a inferência falhar; uso da IA é opcional ao usuário, mas ambas as capacidades devem ser demonstradas para concluir US3 e a PoC integral. Fallback não comprova RAG.
+- **Geração reproduzível**: propor `scripts/generate-knowledge.ts` e `pnpm knowledge:generate`, com fontes, hashes, modelo, ferramentas, versões e parâmetros de chunking e embeddings fixados. Em ambiente limpo, comparar hashes dos artefatos de identidade exata; para vetores, registrar e aplicar tolerâncias numéricas justificadas quando hardware ou runtime impedirem igualdade binária.
+- **Chrome real**: Playwright é candidato a avaliar no SPIKE-001 para carregar extensão e verificar Side Panel, Service Worker e navegação. Registrar versão, limitações, alternativa e distinção entre automação e validação manual; não presumir compatibilidade antes do experimento.
+- Referências são validadas contra documentos e chunks realmente recuperados, mas uma referência válida não prova suporte semântico. Limitar resposta a fatos rastreáveis ou apresentar a saída como sugestão sujeita a revisão; ao falhar validação de referência, fallback conforme RF-009b.
+
+## Validações experimentais obrigatórias
+
+1. Pacote MV3, Node/pnpm, versões/licenças, artefatos e reprodutibilidade; política Chrome Web Store e CSP efetiva, inclusive WASM/arquivos auxiliares.
+2. Permissões reais, gesto `activeTab`, headers em reload/redirecionamento/cache, associação `documentId`/request e suspensão do worker. Confirmar comportamento de partições e cobertura de cookies; ausência de evidência implica `NOT_EVALUATED`.
+3. Provas de privacidade com segredos canário em todos os limites e sem registros de valores; limpar dados sensíveis na origem não garante zeragem física da memória JavaScript.
+4. Modelo e embeddings: tamanho, memória, hardware, latência, download consentido, tráfego, execução sem rede, cache e recuperação, licença e qualidade. Prompt API pode estar indisponível; fallback é obrigatório. Não é permitido substituir RAG local por serviço externo se o experimento falhar.
+5. Testes em Chrome sobre cenários da especificação, com demo local e análise de cobertura parcial. Nenhuma dessas validações foi executada nesta etapa.
