@@ -1,0 +1,32 @@
+{
+  "name": "websentinel-stack-spike",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.1.2",
+  "scripts": {
+    "prepare": "wxt prepare",
+    "build": "wxt build",
+    "typecheck": "wxt prepare && tsc --noEmit",
+    "test": "vitest run tests/schema.test.ts",
+    "test:browser": "playwright test"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "@tailwindcss/vite": "4.3.5",
+    "@types/chrome": "0.3.8",
+    "@types/node": "26.6.11",
+    "@types/react": "19.3.3",
+    "@types/react-dom": "19.3.0",
+    "@wxt-dev/module-react": "1.2.2",
+    "tailwindcss": "4.3.5",
+    "typescript": "7.0.2",
+    "vitest": "5.1.2",
+    "wxt": "0.21.5"
+  }
+}
