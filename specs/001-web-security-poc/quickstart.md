@@ -1,26 +1,27 @@
 # Guia de validação futura
 
-Este é um roteiro para depois da implementação autorizada. Nesta etapa não existem comandos do projeto, dependências instaladas, demo ou build verificados. Os nomes de scripts abaixo são **propostos**, não disponíveis nem executados; confirmar os nomes no repositório implementado antes de usá-los.
+Este é um roteiro para a validação integral futura. A Foundation foi aprovada com testes, typecheck e build registrados em `docs/checkpoints/foundation.md`; a demo e os cenários de ponta a ponta ainda não foram implementados ou verificados.
 
 ## Pré-requisitos e preparação futura
 
 - Chrome desktop na versão mínima validada pelo projeto; versão 138+ é candidata para a Prompt API opcional, não garantia de hardware/modelo disponível.
-- Node e pnpm nas versões documentadas e fixadas pelo projeto; obtenção de dependências só após autorização para implementação e validação de lockfile/licenças.
+- Node e pnpm nas versões documentadas e fixadas pelo projeto; utilizar o lockfile e as condições documentadas para instalação e licenças.
 - Base dos cinco documentos OWASP incluída no pacote com versões, hashes e licenças verificáveis. A demo deve escutar apenas em endereço local; não utilizar aplicações reais sem permissão.
 - Para teste de IA, hardware e espaço conforme documentação vigente do navegador ou modelo escolhido; medir tamanho do download, espaço, memória e latência. A análise central não depende de nenhum modelo.
 
 ## Comandos previstos após implementação
 
-Na raiz, depois de conferir `package.json`, lockfile e scripts efetivos, os comandos pretendidos são:
+Na raiz, os comandos da Foundation validados em 2026-11-27 foram `pnpm test`, `pnpm run typecheck` e `pnpm run build`. A instalação offline com lockfile congelado também foi registrada em `docs/validation/foundation-tdd.md`. Para a validação integral futura, após conferir dependências e scripts, estão previstos:
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm test
+pnpm run typecheck
 pnpm run build
 pnpm run demo
 ```
 
-O último comando pressupõe script de demonstração a ser criado; o caminho de saída da extensão e o endereço local da demo devem ser registrados na documentação real. Carregar o diretório resultante como extensão não empacotada em `chrome://extensions` em modo de desenvolvedor. A instalação de pacotes e a execução desses comandos não fizeram parte da elaboração deste plano.
+O último comando pressupõe script de demonstração a ser criado; o caminho de saída da extensão e o endereço local da demo devem ser registrados na documentação real. Carregar o diretório resultante como extensão não empacotada em `chrome://extensions` em modo de desenvolvedor. O comando da demo ainda não está disponível; o resultado dos cenários futuros não foi demonstrado pela validação da Foundation.
 
 ## Cenários de ponta a ponta
 

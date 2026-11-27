@@ -43,9 +43,9 @@ As evidências históricas de TDD estão em [foundation-tdd.md](../validation/fo
 
 ## Limitações, licenciamento e próximos passos
 
-- O manifesto atual não prova a viabilidade futura de `activeTab`, headers, cookies, identidade de navegação ou suspensão do worker: T009–T011 e T013 são gates específicos. T012/T013 devem decidir separadamente recuperação e inferência local. O teste automatizado prévio abriu o documento do painel como página, não o painel nativo.
+- Na data deste checkpoint, o manifesto da Foundation não provava a viabilidade futura de `activeTab`, headers, cookies, identidade de navegação ou suspensão do worker: T009–T011 e T013 são gates específicos. T012/T013 devem decidir separadamente recuperação e inferência local. O teste automatizado prévio abriu o documento do painel como página, não o painel nativo.
 - A licença própria é MIT, com titular indicado em `LICENSE`; avisos iniciais estão em `THIRD_PARTY_NOTICES.md` e foram copiados ao build. A revisão técnica e seus limites constam em [dependencies.md](../dependencies.md). T060 deve auditar a proveniência do bundle definitivo, licenças, avisos, CSP, permissões e reprodutibilidade antes de distribuição.
-- Próximas tarefas disponíveis pelas dependências declaradas: spikes T009–T012 e testes antecipados T015–T019, T027–T031, T040–T041, T044, T047, T050–T051, T063, T065 e T067. A execução de componentes definitivos continua sujeita às dependências e checkpoints de `tasks.md`.
+- Tarefas disponíveis na data deste checkpoint pelas dependências declaradas: spikes T009–T012 e testes antecipados T015–T019, T027–T031, T040–T041, T044–T045, T047, T050–T051, T063, T065 e T067. T045, de remediações determinísticas, também satisfaz suas dependências declaradas. A execução de componentes definitivos continua sujeita às dependências e checkpoints de `tasks.md`.
 - O checklist de requisitos foi revisado: cookies, cobertura e contexto estão definidos na especificação; a marcação não valida o produto. Ver [checklist](../../specs/001-web-security-poc/checklists/requirements.md).
 
 ## Aprovação

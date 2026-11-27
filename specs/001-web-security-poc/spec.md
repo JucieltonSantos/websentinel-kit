@@ -4,7 +4,7 @@
 
 **Criada em**: 2026-11-26
 
-**Estado**: Rascunho para revisão
+**Estado**: requisitos revisados e utilizados na Foundation aprovada; validação do produto e das capacidades futuras permanece pendente.
 
 **Entrada**: descrição da PoC fornecida pelo usuário; constituição versão 2.1.0.
 

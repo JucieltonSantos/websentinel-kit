@@ -2,7 +2,7 @@
 
 **Branch de referência do Spec Kit**: `001-web-security-poc` | **Data**: 2026-11-26 | **Especificação**: [spec.md](spec.md)
 
-**Estado**: proposta para revisão; branch Git atual `main` (nenhuma branch foi criada). Este plano não autoriza implementação nem amplia o escopo.
+**Estado**: plano de referência para o desenvolvimento da PoC; Foundation e SPIKE-001 aprovados nos limites registrados em `docs/checkpoints/foundation.md`; SPIKE-002 aprovado nos limites de `docs/spikes/002-http-headers.md`. SPIKE-003–005, componentes futuros, checkpoint técnico e distribuição permanecem pendentes de validação e aprovação. O plano não amplia o escopo.
 
 ## Resumo
 
@@ -10,10 +10,10 @@ Extensão Chrome MV3 local-first com Side Panel em React e análise passiva volu
 
 ## Contexto técnico
 
-- **Linguagem/versão**: TypeScript com `strict`, versões exatas de Node, TypeScript e navegador a fixar após ensaio de compatibilidade. Baseline proposto Chrome 138+ para a variante opcional Prompt API; o núcleo não depende dessa API. `documentId` exige suporte desde Chrome 106, cookies particionados desde 119; validar a matriz final.
-- **Dependências propostas**: WXT, React, Tailwind CSS, Zod, Vitest, pnpm. Aceitação condicionada à verificação conjunta de versões, build, licenças e CSP; justificativas e fontes em [research.md](research.md). Transformers.js é candidato condicionado, não dependência consolidada; Gemini Nano/Prompt API é alternativa em avaliação.
+- **Linguagem/versão**: TypeScript com `strict`; Node 24 e versões da stack foram fixados após o SPIKE-001. A matriz final de navegadores permanece pendente. Baseline proposto Chrome 138+ para a variante opcional Prompt API; o núcleo não depende dessa API. `documentId` exige suporte desde Chrome 106, cookies particionados desde 119; validar a matriz final.
+- **Dependências aprovadas para desenvolvimento**: WXT, React, Tailwind CSS, Zod, Vitest e pnpm, nas versões registradas na Foundation e em `package.json`. A auditoria da distribuição final permanece pendente; justificativas e fontes em [research.md](research.md). Transformers.js é candidato condicionado, não dependência consolidada; Gemini Nano/Prompt API é alternativa em avaliação.
 - **Armazenamento**: base JSON empacotada, sem banco de dados externo nem histórico persistente. Resultados e evidências apenas em memória da sessão; cache de pesos, se necessário e permitido, separado da base e jamais com dados da aplicação. Sem banco vetorial ou IndexedDB para conhecimento.
-- **Testes**: Vitest para regras puras, correlação, validação e sanitização; testes de integração MV3 em Chrome real para permissões, navegação, headers, isolamento e ciclo de vida. Ferramenta de automação de navegador ainda não selecionada.
+- **Testes**: Vitest para regras puras, correlação, validação e sanitização; testes de integração MV3 em Chrome real para permissões, navegação, headers, isolamento e ciclo de vida. Playwright foi aprovado para os cenários demonstrados no SPIKE-001; os demais ainda exigem validação.
 - **Plataforma/projeto**: uma extensão Chrome MV3, projeto único; demo vulnerável exclusivamente local.
 - **Metas de desempenho**: limites operacionais iniciais definidos abaixo para proteção de recursos, não promessa de latência. Medir tempos e memória no hardware de referência antes de fixar metas de produto.
 - **Restrições**: sem backend, serviço de inferência externa, exploração, varredura ativa, coleta de outras abas/iframes ou histórico; permissões restritas; CSP MV3 e política de código remoto aplicáveis.
@@ -30,7 +30,7 @@ Extensão Chrome MV3 local-first com Side Panel em React e análise passiva volu
 | IX independência de IA | Núcleo e fallback funcionam offline; IA nunca modifica findings. | Condicional: provar modelo local, consentimento, fontes e conformidade MV3/CWS antes de ativar IA. |
 | XI testes; XII código aberto | Testes positivos, negativos, borda, builds e documentação. | Planejados; nenhuma execução ou reprodutibilidade foi demonstrada. |
 
-**Resultado**: nenhuma violação deliberada do design identificada; não há aprovação de compatibilidade prática. Validações condicionais são bloqueios para afirmar conformidade e disponibilizar as partes afetadas, não autorização para ampliar escopo. Se um bloqueio não puder ser resolvido, interromper e revisar com o responsável.
+**Resultado da revisão de design original**: nenhuma violação deliberada identificada. Desde então, o SPIKE-001 validou a stack para desenvolvimento nos limites do checkpoint da Foundation; a aprovação posterior do SPIKE-002 cobre apenas os limites de seu relatório; os demais spikes ainda não foram comprovados. Validações condicionais são bloqueios para afirmar conformidade e disponibilizar as partes afetadas, não autorização para ampliar escopo. Se um bloqueio não puder ser resolvido, interromper e revisar com o responsável.
 
 ## Estrutura do projeto
 
@@ -64,7 +64,7 @@ demo/                 # aplicação vulnerável mínima local
 docs/                 # limitações e decisões
 ```
 
-A estrutura é proposta, não criada; nomenclatura WXT e arquivos efetivos serão conferidos no build.
+A árvore descreve a arquitetura planejada; a Foundation já criou a estrutura inicial e confirmou os entrypoints atuais no build. Os componentes futuros ainda não foram implementados.
 
 ## Arquitetura e ciclo da análise
 
@@ -88,6 +88,7 @@ avaliados no SPIKE-004 antes de consolidar a solução.
 
 - Manifesto proposto: `sidePanel`, `activeTab`, `scripting`, `webRequest`, `webNavigation`; `cookies` como opcional para SEC-007/008, solicitada com gesto do usuário e quando necessário. Validar instalação, avisos e se as APIs podem ser opcionais no Chrome alvo. Não incluir `tabs`, `storage`, `webRequestBlocking` ou `<all_urls>` obrigatórios sem comprovação. Se `activeTab` não permitir cookies ou resposta na origem necessária, solicitar host exato como permissão opcional apenas com consentimento; ausência resulta em cobertura limitada, não acesso amplo automático.
 - `activeTab` não concede observação genérica de sub-recursos de terceiros; não solicitar acesso de terceiros apenas para aumentar cobertura. Usar referências do DOM e relatar carregamento/desfecho desconhecido. O evento de resposta não observado é diferente de header ausente.
+- Para a observação da resposta principal, a evidência do SPIKE-002 favorece `activeTab` por gesto e listener único registrado sincronamente. Não exigir host obrigatório nem solicitar host opcional preventivamente; não depender de reload da extensão. Evidência indisponível permanece `NOT_EVALUATED`. Esta orientação é limitada às condições de [SPIKE-002](../../docs/spikes/002-http-headers.md) e não substitui a aprovação do checkpoint T013 nem a validação de identidade pelo SPIKE-004.
 - Toda mensagem é validada por schema estrito, versão e limite de tamanho; rejeitar chaves extras e remetentes externos; conferir extensão, tabId, frameId e documentId compatíveis. Não aceitar ordens da página. O painel renderiza texto como texto, sem HTML gerado ou links não validados.
 - Limites iniciais a validar: 30 s para aguardar reload, 10 s para coleta após documento pronto, 5 s por coleta, 1 MiB por mensagem sanitizada, até 1.000 itens por categoria; excedentes tornam cobertura parcial e impedem `PASSED`. IA: uma solicitação por vez, 30 s de geração e contexto sanitizado máximo de 16 KiB; timeout gera fallback. Estes limites são proposta técnica, não metas comprovadas.
 - URLs, nomes e metadados podem conter segredos: usar apenas enums/flags e identificadores locais opacos; para referências de recursos exibir no máximo origem sem credenciais ou consulta, e somente se sanitizada; não transferir texto de CSP bruto sem validação de lista permitida.
@@ -108,4 +109,4 @@ A geração é opcional para o usuário, mas sua capacidade local e a recuperaç
 
 ## Acompanhamento de complexidade e riscos
 
-Nenhuma exceção à constituição proposta. Riscos ainda não resolvidos: acesso completo a cookies particionados e seu contexto, visibilidade de respostas/cache, identidade entre `webRequest` e navegação, capacidade e conformidade de runtimes/modelos, custo de embeddings, e viabilidade de reconstruir builds. Experimentos são planejados, não executados. Se não for possível satisfazer os requisitos, marcar a capacidade indisponível e submeter a limitação ao responsável antes de afirmar conclusão da PoC.
+Nenhuma exceção à constituição proposta. Riscos ainda não resolvidos: acesso completo a cookies particionados e seu contexto, visibilidade de respostas/cache, identidade entre `webRequest` e navegação, capacidade e conformidade de runtimes/modelos, custo de embeddings, e viabilidade de reconstruir builds. Os SPIKE-001 e SPIKE-002 foram executados e aprovados em seus limites; os demais experimentos e o checkpoint técnico permanecem pendentes. Se não for possível satisfazer os requisitos, marcar a capacidade indisponível e submeter a limitação ao responsável antes de afirmar conclusão da PoC.
