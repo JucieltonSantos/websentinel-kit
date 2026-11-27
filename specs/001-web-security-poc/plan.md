@@ -2,7 +2,7 @@
 
 **Branch de referência do Spec Kit**: `001-web-security-poc` | **Data**: 2026-11-26 | **Especificação**: [spec.md](spec.md)
 
-**Estado**: plano de referência para o desenvolvimento da PoC; Foundation e SPIKE-001 aprovados nos limites registrados em `docs/checkpoints/foundation.md`; SPIKE-002 aprovado nos limites de `docs/spikes/002-http-headers.md`. SPIKE-003–005, componentes futuros, checkpoint técnico e distribuição permanecem pendentes de validação e aprovação. O plano não amplia o escopo.
+**Estado**: plano de referência para o desenvolvimento da PoC; Foundation e SPIKE-001 aprovados nos limites registrados em `docs/checkpoints/foundation.md`; SPIKE-002 aprovado nos limites de `docs/spikes/002-http-headers.md`. SPIKE-003 aprovado com limitações em `docs/spikes/003-cookies.md`; SPIKE-004–005, componentes futuros, checkpoint técnico e distribuição permanecem pendentes de validação e aprovação. O plano não amplia o escopo.
 
 ## Resumo
 
@@ -30,7 +30,13 @@ Extensão Chrome MV3 local-first com Side Panel em React e análise passiva volu
 | IX independência de IA | Núcleo e fallback funcionam offline; IA nunca modifica findings. | Condicional: provar modelo local, consentimento, fontes e conformidade MV3/CWS antes de ativar IA. |
 | XI testes; XII código aberto | Testes positivos, negativos, borda, builds e documentação. | Planejados; nenhuma execução ou reprodutibilidade foi demonstrada. |
 
-**Resultado da revisão de design original**: nenhuma violação deliberada identificada. Desde então, o SPIKE-001 validou a stack para desenvolvimento nos limites do checkpoint da Foundation; a aprovação posterior do SPIKE-002 cobre apenas os limites de seu relatório; os demais spikes ainda não foram comprovados. Validações condicionais são bloqueios para afirmar conformidade e disponibilizar as partes afetadas, não autorização para ampliar escopo. Se um bloqueio não puder ser resolvido, interromper e revisar com o responsável.
+**Resultado da revisão de design original**: nenhuma violação deliberada identificada. Desde então, o SPIKE-001 validou a stack para desenvolvimento nos limites do checkpoint da Foundation; os SPIKE-002 e SPIKE-003 foram aprovados apenas nos limites de seus relatórios; SPIKE-004 e SPIKE-005 ainda não foram comprovados. Validações condicionais são bloqueios para afirmar conformidade e disponibilizar as partes afetadas, não autorização para ampliar escopo. Se um bloqueio não puder ser resolvido, interromper e revisar com o responsável.
+
+### Resultado do SPIKE-003 e dependência de identidade
+
+A revisão documental da T010 aceitou como limitação experimental a ausência de demonstração de recusa nativa separada da permissão `cookies`; ausência e revogação foram testadas, sem equipará-las à recusa. O responsável aprovou explicitamente o encerramento da T010 com essas limitações em 2026-11-27. O relatório do spike preserva a ocorrência de diagnóstico CDP e os limites da revisão de privacidade; isso não modifica os requisitos constitucionais. Nenhuma permissão HTTP adicional para o produto foi aprovada.
+
+A T011 deve validar a associação entre aba, documento principal confirmado, store e chave de partição aplicáveis, ou demonstrar interrupção segura sem mistura. Não são necessárias consultas a lojas ou partições alheias ao documento. T023 depende também da aprovação de T011 e exige associação comprovada para o contexto de coleta; interrupção segura, isoladamente, não comprova capacidade de coleta. Identidade ou cobertura insuficiente impede `PASSED` e ausência conclusiva; uma ocorrência aplicável comprovada pode sustentar `FAILED` mesmo com cobertura parcial, conforme RF-004.
 
 ## Estrutura do projeto
 
@@ -109,4 +115,4 @@ A geração é opcional para o usuário, mas sua capacidade local e a recuperaç
 
 ## Acompanhamento de complexidade e riscos
 
-Nenhuma exceção à constituição proposta. Riscos ainda não resolvidos: acesso completo a cookies particionados e seu contexto, visibilidade de respostas/cache, identidade entre `webRequest` e navegação, capacidade e conformidade de runtimes/modelos, custo de embeddings, e viabilidade de reconstruir builds. Os SPIKE-001 e SPIKE-002 foram executados e aprovados em seus limites; os demais experimentos e o checkpoint técnico permanecem pendentes. Se não for possível satisfazer os requisitos, marcar a capacidade indisponível e submeter a limitação ao responsável antes de afirmar conclusão da PoC.
+Nenhuma exceção à constituição proposta. Riscos ainda não resolvidos: acesso completo a cookies particionados e seu contexto, visibilidade de respostas/cache, identidade entre `webRequest` e navegação, capacidade e conformidade de runtimes/modelos, custo de embeddings, e viabilidade de reconstruir builds. Os SPIKE-001, SPIKE-002 e SPIKE-003 foram executados e aprovados em seus limites; SPIKE-004, SPIKE-005 e o checkpoint técnico permanecem pendentes. Se não for possível satisfazer os requisitos, marcar a capacidade indisponível e submeter a limitação ao responsável antes de afirmar conclusão da PoC.
